@@ -114,7 +114,6 @@ Here are the configurable parameters for GlitchMiner, with explanations of their
 - **Gradient-based discrete optimization:** Leverages model gradients to efficiently detect glitch tokens.
 - **Entropy-driven strategy:** Focuses on areas with high prediction uncertainty.
 - **Multi-model support:** Compatible with popular models like Llama, Qwen, Gemma, and more.
-- **Customizable templates:** Allows you to tailor input formats for various use cases.
 
 ---
 
