@@ -1,9 +1,9 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
 # 从llm_template导入模板
-from llm_template import get_template_for_model
+from .llm_template import get_template_for_model
 import torch.nn.functional as F
-from tokenfilter import TokenFilter
+from .tokenfilter import TokenFilter
 import time
 
 def entropy(probs):
