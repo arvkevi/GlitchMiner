@@ -81,7 +81,7 @@ if __name__ == "__main__":
     glitch_tokens, glitch_token_ids = GlitchMiner(
         model,
         tokenizer,
-        num_iterations=10,
+        num_iterations=125,
         batch_size=8,
         k=32,
         if_print=True,
