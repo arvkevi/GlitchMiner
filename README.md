@@ -45,7 +45,7 @@ Key steps include:
 
 - **Security Assurance:** Detect and address glitch tokens that may expose vulnerabilities.
 - **Performance Enhancement:** Improve the accuracy and reliability of your models by eliminating unpredictable behaviors.
-- **Easy Integration:** GlitchMiner supports Hugging Face models and provides customizable templates for diverse tasks.
+- **Easy Integration:** GlitchMiner directly supports Hugging Face models.
 - **Scalable and Efficient:** The tool is optimized for both small and large models, making it suitable for research and production environments.
 
 With GlitchMiner, researchers and developers can confidently deploy LLMs in critical applications, knowing that potential glitches have been identified and mitigated.
