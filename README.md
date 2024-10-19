@@ -96,6 +96,22 @@ if __name__ == "__main__":
     runtime = end_time - start_time
     print(f"GlitchMiner runtime: {runtime:.2f} seconds")
 ```
+## ⚙️ GlitchMiner Parameters
+
+Here are the configurable parameters for GlitchMiner, with explanations of their purpose and usage:
+
+| Parameter         | Type     | Default Value | Description                                                                                       |
+|-------------------|----------|---------------|---------------------------------------------------------------------------------------------------|
+| `model`           | Model    | **Required**  | A Hugging Face `AutoModelForCausalLM` model used for glitch token detection.                       |
+| `tokenizer`       | Tokenizer| **Required**  | A Hugging Face `AutoTokenizer` for encoding and decoding tokens.                                   |
+| `num_iterations`  | `int`    | 125            | The number of iterations to run the glitch token search.                                           |
+| `batch_size`      | `int`    | 8             | Number of tokens processed per batch during the search process.                                    |
+| `k`               | `int`    | 32            | Number of top similar tokens to evaluate during each iteration using cosine similarity.            |
+| `if_print`        | `bool`   | `True`        | If `True`, prints detailed progress and results during execution.                                  |
+| `print_language`  | `str`    | `"CN"`        | Output language for printed messages. Supports `"CN"` for Chinese and `"ENG"` for English.          |
+| `skip_tokens`     | `list`   | `None`        | Optional list of token IDs to exclude from the glitch detection process.                           |
+
+
 ## 📚 Key Features
 
 - **Gradient-based discrete optimization:** Leverages model gradients to efficiently detect glitch tokens.
