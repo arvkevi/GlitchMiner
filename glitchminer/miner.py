@@ -172,7 +172,7 @@ def initialize_model_and_tokenizer(model_path, device="auto", quant_type="bfloat
     model.requires_grad_(False)
     return model, tokenizer
 
-def GlitchMiner(model, tokenizer, num_iterations, batch_size, k, if_print=True, print_language="CN", skip_tokens=None):
+def GlitchMiner(model, tokenizer, num_iterations=125, batch_size=8, k=32, if_print=True, print_language="CN", skip_tokens=None):
     # 获取嵌入
     embedding_device = next(model.get_input_embeddings().parameters()).device
     all_token_embeddings = model.get_input_embeddings().weight.detach().to(embedding_device)
