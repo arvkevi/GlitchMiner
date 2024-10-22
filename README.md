@@ -95,7 +95,8 @@ if __name__ == "__main__":
 ```
 
 ## Example Output
-![image](https://github.com/user-attachments/assets/d748757b-3039-4fe8-aee7-142abe230870)
+![image](https://github.com/user-attachments/assets/3e583d06-d3cc-46b5-bcd6-24fbe40fbffa)
+
 
 
 ## ⚙️ GlitchMiner Parameters
