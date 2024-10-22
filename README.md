@@ -128,7 +128,7 @@ Below are some key results demonstrating GlitchMiner’s superior performance:
 | Gemma-2-9b-it     | 90.17%         | 70.57%         |
 | Mistral-Nemo      | 57.03%         | 61.48%         |
 
-For more details, refer to our paper (coming soon).
+For more details, refer to our [paper](https://arxiv.org/pdf/2410.15052).
 
 
 ---
