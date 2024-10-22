@@ -1,4 +1,4 @@
-# 🧑‍🚀⛏️👻 GlitchMiner: Efficient Glitch Token Detection in Large Language Models ([arxiv link](https://arxiv.org/pdf/2410.15052))
+# 🧑‍🚀⛏️👻 GlitchMiner: Mining Glitch Tokens in Large Language Models via Gradient-based Discrete Optimization ([arxiv link](https://arxiv.org/pdf/2410.15052))
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue.svg?style=flat-square)  
 ![Transformers](https://img.shields.io/badge/HuggingFace-Transformers-orange?style=flat-square)  
