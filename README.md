@@ -156,6 +156,20 @@ For more details, refer to our [paper](https://arxiv.org/pdf/2410.15052).
 
 This project is licensed under the [MIT License](./LICENSE).
 
+## ⭐ Citation 
+If you find GlitchMiner helpful, please leave us a star 🌟 on GitHub and consider citing our paper:
+```
+@misc{wu2024miningglitchtokenslarge,
+      title={Mining Glitch Tokens in Large Language Models via Gradient-based Discrete Optimization}, 
+      author={Zihui Wu and Haichang Gao and Ping Wang and Shudong Zhang and Zhaoxiang Liu and Shiguo Lian},
+      year={2024},
+      eprint={2410.15052},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2410.15052}, 
+}
+```
+
 
 
 
