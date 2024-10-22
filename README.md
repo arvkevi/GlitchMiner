@@ -93,6 +93,11 @@ if __name__ == "__main__":
     runtime = end_time - start_time
     print(f"GlitchMiner runtime: {runtime:.2f} seconds")
 ```
+
+# Example Output
+![image](https://github.com/user-attachments/assets/d748757b-3039-4fe8-aee7-142abe230870)
+
+
 ## ⚙️ GlitchMiner Parameters
 
 Here are the configurable parameters for GlitchMiner, with explanations of their purpose and usage:
