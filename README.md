@@ -94,7 +94,7 @@ if __name__ == "__main__":
     print(f"GlitchMiner runtime: {runtime:.2f} seconds")
 ```
 
-## Example Output
+### Example Outputs
 ![image](https://github.com/user-attachments/assets/3e583d06-d3cc-46b5-bcd6-24fbe40fbffa)
 
 
