@@ -1,3 +1,5 @@
+# Note: There are some flaws in how we currently evaluate our work, and we are focusing on addressing this issue.
+
 # GlitchMiner: Mining Glitch Tokens in Large Language Models via Gradient-based Discrete Optimization ([arxiv link](https://arxiv.org/pdf/2410.15052))
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue.svg?style=flat-square)  
