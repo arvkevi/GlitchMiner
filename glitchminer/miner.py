@@ -111,7 +111,7 @@ def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens
                     glitch_token_ids.append(token_id.item())
 
                 if if_print:
-                    print_str = f"  当前token: '{token}', token id: {token_id.item()}, 是否为glitch token: {'是' if is_glitch else '否'}, 近似熵: {entropy_approximations[top_batch_indices[xxx]]}, 熵值: {entropy_value.item():.4f}" if print_language == "CN" else f"  Current token: '{token}', token id: {token_id.item()}, is glitch token: {'Yes' if is_glitch else 'No'}, entropy: {entropy_value.item():.4f}"
+                    print_str = f"  当前token: '{token}', token id: {token_id.item()}, 是否为glitch token: {'是' if is_glitch else '否'}, 熵值: {entropy_value.item():.4f}" if print_language == "CN" else f"  Current token: '{token}', token id: {token_id.item()}, is glitch token: {'Yes' if is_glitch else 'No'}, entropy: {entropy_value.item():.4f}"
                     print(print_str)
 
         # 步骤5：选择熵值最大的token进行下一次迭代
