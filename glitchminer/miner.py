@@ -5,11 +5,12 @@ from .llm_template import get_template_for_model
 import torch.nn.functional as F
 from .tokenfilter import TokenFilter
 import time
+import tqdm
 
 def entropy(probs):
     return -torch.sum(probs * torch.log(probs + 1e-9), dim=-1)
 
-def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens, batch_size=16, k=100, chat_template=None, if_print=True, print_language="CN"):
+def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens, batch_size=16, k=100, start_id=0, chat_template=None, if_print=True, print_language="CN"):
     device = model.device
     all_token_embeddings = all_token_embeddings.to(device)
 
@@ -23,8 +24,8 @@ def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens
     assistant_prefill = ' Sure, the string is: "«'
     system_message = ''
 
-    valid_tokens = torch.where(mask)[0]
-    current_token_id = valid_tokens[torch.randint(0, len(valid_tokens), (1,))].item()
+    #valid_tokens = torch.where(mask)[0]
+    current_token_id = start_id #valid_tokens[torch.randint(0, len(valid_tokens), (1,))].item()
 
     total_tokens_checked = 0
     glitch_tokens_count = 0
@@ -70,9 +71,11 @@ def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens
         valid_mask[current_token_id] = False
         valid_token_ids = torch.where(valid_mask)[0]
         valid_embeddings = all_token_embeddings[valid_token_ids]
+        
+        l2_distances = torch.norm(valid_embeddings - current_token_embedding.unsqueeze(0), p=2, dim=1)
+        nearest_indices = torch.topk(l2_distances, k=min(k, len(valid_token_ids)), largest=False).indices
 
-        cosine_similarities = F.cosine_similarity(current_token_embedding.unsqueeze(0), valid_embeddings)
-        nearest_indices = torch.topk(cosine_similarities, k=min(k, len(valid_token_ids))).indices
+        
         candidate_token_ids = valid_token_ids[nearest_indices]
 
         delta_embeddings = valid_embeddings[nearest_indices] - current_token_embedding
@@ -81,12 +84,12 @@ def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens
         # 步骤3：选取前batch_size个近似熵最大的token
         top_batch_indices = torch.topk(entropy_approximations, k=min(batch_size, len(candidate_token_ids))).indices
         batch_token_ids = candidate_token_ids[top_batch_indices]
-
+        
         # 步骤4：评估是否为glitch token
         model.eval()
         with torch.no_grad():
             batch_entropies = []
-            for token_id in batch_token_ids:
+            for xxx, token_id in enumerate(batch_token_ids):
                 token = tokenizer.decode([token_id.item()])
                 user_prompt = f'Please repeat the string: "«{token}»"'
                 formatted_input = (system_format.format(content=system_message) if system_format else "") + user_format.format(content=user_prompt) + assistant_prefill
@@ -108,7 +111,7 @@ def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens
                     glitch_token_ids.append(token_id.item())
 
                 if if_print:
-                    print_str = f"  当前token: '{token}', token id: {token_id.item()}, 是否为glitch token: {'是' if is_glitch else '否'}, 熵值: {entropy_value.item():.4f}" if print_language == "CN" else f"  Current token: '{token}', token id: {token_id.item()}, is glitch token: {'Yes' if is_glitch else 'No'}, entropy: {entropy_value.item():.4f}"
+                    print_str = f"  当前token: '{token}', token id: {token_id.item()}, 是否为glitch token: {'是' if is_glitch else '否'}, 近似熵: {entropy_approximations[top_batch_indices[xxx]]}, 熵值: {entropy_value.item():.4f}" if print_language == "CN" else f"  Current token: '{token}', token id: {token_id.item()}, is glitch token: {'Yes' if is_glitch else 'No'}, entropy: {entropy_value.item():.4f}"
                     print(print_str)
 
         # 步骤5：选择熵值最大的token进行下一次迭代
@@ -172,11 +175,11 @@ def initialize_model_and_tokenizer(model_path, device="auto", quant_type="bfloat
     model.requires_grad_(False)
     return model, tokenizer
 
-def GlitchMiner(model, tokenizer, num_iterations=125, batch_size=8, k=32, if_print=True, print_language="CN", skip_tokens=None):
+def GlitchMiner(model, tokenizer, num_iterations, batch_size, k, if_print=True, print_language="CN", skip_tokens=None):
     # 获取嵌入
     embedding_device = next(model.get_input_embeddings().parameters()).device
     all_token_embeddings = model.get_input_embeddings().weight.detach().to(embedding_device)
-    
+    vocab_size = all_token_embeddings.shape[0]
     # 过滤token
     token_filter = TokenFilter(model, tokenizer)
     if skip_tokens is None:
@@ -186,10 +189,20 @@ def GlitchMiner(model, tokenizer, num_iterations=125, batch_size=8, k=32, if_pri
     
     # 获取聊天模板
     chat_template = get_template_for_model(model.config._name_or_path)
-    
+    norms = []
+    all_token_embeddings_cpu = all_token_embeddings.cpu().clone()
+    for token_id in range(vocab_size):
+        if token_id in skip_tokens:
+                continue
+        l2_norm = torch.norm(all_token_embeddings_cpu[token_id], p=2)
+        norms.append((token_id, l2_norm))
+
+    norms.sort(key=lambda x: x[1])
+    start_id = norms[0][0]
+
     glitch_tokens, glitch_token_ids = miner(
             num_iterations, model, token_filter, all_token_embeddings, skip_tokens, 
-            batch_size=batch_size, k=k, chat_template=chat_template, if_print=if_print, print_language=print_language
+            batch_size=batch_size, k=k, start_id=start_id, chat_template=chat_template, if_print=if_print, print_language=print_language
         )
     return glitch_tokens, glitch_token_ids
 
@@ -288,7 +301,54 @@ def chat_token(model_path, token_id, max_size=10, device="auto", quant_type="bfl
 
         return result
 
-def is_glitch_token(model, tokenizer, token_id, chat_template=None):
+
+def glitch_verify_message1(chat_template,token):
+    system_format = chat_template.system_format
+    user_format = chat_template.user_format
+    assistant_prefill = ' Sure, the string is: "«'
+    system_message = ''
+    user_prompt = f'Please repeat the string: "«{token}»"'
+    
+    formatted_system = system_format.format(content=system_message) if system_format else ""
+    formatted_user = user_format.format(content=user_prompt)
+    
+    formatted_input = formatted_system + formatted_user + assistant_prefill
+    
+    return formatted_input
+
+def glitch_verify_message2(chat_template,token):
+    system_format = chat_template.system_format
+    user_format = chat_template.user_format
+    assistant_format = chat_template.assistant_format
+    assistant_prefill="'"
+    system_message = 'This helpful assistant explains what a phrase means, replying with identical responses to identical questions for reliability.'
+    
+    user_prompt1 = "What does 'edslfkj' mean?"
+    assistant_answer1 = "'edslfkj' has no specific meaning I am aware of."
+    user_prompt2 = f"What does '{token}' mean?"
+    
+    formatted_system = system_format.format(content=system_message) if system_format else ""
+    formatted_user1 = user_format.format(content=user_prompt1)
+    formatted_assitant1 = assistant_format.format(content=assistant_answer1)
+    formatted_user2 = user_format.format(content=user_prompt2)
+    
+    formatted_input = formatted_system + formatted_user1 + formatted_assitant1 +formatted_user2 + assistant_prefill
+    return formatted_input
+
+def glitch_verify_message3(chat_template,token):
+    system_format = chat_template.system_format
+    user_format = chat_template.user_format
+    assistant_prefill = " Of course! Here is the repeated string:'"
+    system_message = ''
+    user_prompt = f"Question: Please can you repeat the string '{token}'?"
+    
+    formatted_system = system_format.format(content=system_message) if system_format else ""
+    formatted_user = user_format.format(content=user_prompt)
+    
+    formatted_input = formatted_system + formatted_user + assistant_prefill
+    return formatted_input
+
+def strictly_glitch_verify(model, tokenizer, token_id, chat_template=None):
     # 获取模型设备
     device = model.device
     
@@ -299,36 +359,50 @@ def is_glitch_token(model, tokenizer, token_id, chat_template=None):
     if chat_template is None:
         chat_template = get_template_for_model(model.config._name_or_path)
     
-    # 获取模板格式
-    system_format = chat_template.system_format
-    user_format = chat_template.user_format
-    assistant_prefill = ' Sure, the string is: "«'
-    system_message = ''
-    
-    # 构建用户提示
-    user_prompt = f'Please repeat the string: "«{token}»"'
-    
-    # 格式化输入
-    formatted_system = system_format.format(content=system_message) if system_format else ""
-    formatted_user = user_format.format(content=user_prompt)
-    formatted_input = formatted_system + formatted_user + assistant_prefill
+    formatted_input1 = glitch_verify_message1(chat_template,token)
+    formatted_input2 = glitch_verify_message2(chat_template,token)
+    formatted_input3 = glitch_verify_message3(chat_template,token)
+
     
     # 对输入进行分词
-    input_ids = tokenizer.tokenizer.encode(formatted_input, return_tensors='pt').to(device)
-    
+    input_ids1 = tokenizer.tokenizer.encode(formatted_input1, return_tensors='pt').to(device)
+    input_ids2 = tokenizer.tokenizer.encode(formatted_input2, return_tensors='pt').to(device)
+    input_ids3 = tokenizer.tokenizer.encode(formatted_input3, return_tensors='pt').to(device)
+
+    inputs = [input_ids1,input_ids2,input_ids3]
     # 获取模型的输出
-    with torch.no_grad():
-        outputs = model(input_ids=input_ids)
-        # 获取下一个 token 的 logits
-        next_token_logits = outputs.logits[:, -1, :]
-        next_token_probs = F.softmax(next_token_logits, dim=-1)
-        # 获取概率最大的 token 的 id
-        predicted_token_id = next_token_probs.argmax(dim=-1).item()
-        
-        # 判断预测的 token 是否与输入的 token 一致
-        is_glitch = predicted_token_id != token_id
+    is_glitch = True
+    for input_ids in inputs:
+        with torch.no_grad():
+            outputs = model(input_ids=input_ids)
+            # 获取下一个 token 的 logits
+            next_token_logits = outputs.logits[:, -1, :]
+            next_token_probs = F.softmax(next_token_logits, dim=-1)
+            # 获取概率最大的 token 的 id
+            predicted_token_id = next_token_probs.argmax(dim=-1).item()
+
+            # 判断预测的 token 是否与输入的 token 一致
+            is_glitch = predicted_token_id != token_id
+        if not is_glitch:
+            break
         
     return is_glitch
+
+def strictly_glitch_verification(model, tokenizer, id_list):
+    """检测整个 id_list 中的 glitch token 数量"""
+    # 初始化 TokenFilter 过滤器
+    token_filter = TokenFilter(model, tokenizer)
+    skip_tokens = token_filter.filter_token()  # 获取需要跳过的 token
+    
+    glitch_count = 0  # 初始化 glitch token 计数
+    verified_glitch_ids=[]
+    # 遍历 id_list 并检测 glitch token
+    for token_id in tqdm.tqdm(id_list, desc="检测 Glitch Token"):
+        if token_id not in skip_tokens:
+            if strictly_glitch_verify(model, token_filter, token_id):
+                glitch_count += 1  # 计数器加 1
+                verified_glitch_ids.append(token_id)
+    return glitch_count, verified_glitch_ids
 
 
 if __name__ == "__main__":
