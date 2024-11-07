@@ -1,4 +1,4 @@
-# GlitchMiner: Detecting and Mitigating Glitch Tokens in Large Language Models
+# GlitchMiner: Mining Glitch Tokens in Large Language Models via Gradient-based Discrete Optimization
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue.svg?style=flat-square)](https://www.python.org/)
 [![HuggingFace Transformers](https://img.shields.io/badge/HuggingFace-Transformers-orange?style=flat-square)](https://huggingface.co/transformers/)
