@@ -105,11 +105,12 @@ GlitchMiner has proven effective across various LLM architectures, significantly
 
 ## 🧑‍💻 Contributors
 
-- **Zihui Wu** - Project Lead
-- **Haichang Gao** - Technical Advisor
-- **Ping Wang** - Data Scientist
-- **Shudong Zhang** - Research Engineer
-- **Zhaoxiang Liu**, **Shiguo Lian** - Collaborators from China Unicom
+- **Zihui Wu**
+- **Haichang Gao**
+- **Ping Wang**
+- **Shudong Zhang**
+- **Zhaoxiang Liu**,
+- **Shiguo Lian**
 
 ---
 
