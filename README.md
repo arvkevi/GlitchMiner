@@ -48,7 +48,6 @@ pip install git+https://github.com/wooozihui/GlitchMiner.git
 ```python
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from glitchminer import GlitchMiner
-import time
 
 if __name__ == "__main__":
     model_path = "Qwen/Qwen2.5-7B-Instruct"
@@ -58,7 +57,6 @@ if __name__ == "__main__":
             device_map="cuda",
             torch_dtype=torch.bfloat16,
         )
-    start_time = time.time()
 
     # Run GlitchMiner for glitch token detection
     glitch_tokens, glitch_token_ids = GlitchMiner(
