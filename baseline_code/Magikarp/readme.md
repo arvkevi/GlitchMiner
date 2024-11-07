@@ -1,1 +1,1 @@
-## Reproduction code for Magikarp method
+Reproduction code for Magikarp method
