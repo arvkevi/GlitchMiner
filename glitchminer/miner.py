@@ -25,7 +25,7 @@ def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens
     system_message = ''
 
     #valid_tokens = torch.where(mask)[0]
-    current_token_id = start_id #valid_tokens[torch.randint(0, len(valid_tokens), (1,))].item()
+    current_token_id = start_id#valid_tokens[torch.randint(0, len(valid_tokens), (1,))].item() #start_id #
 
     total_tokens_checked = 0
     glitch_tokens_count = 0
@@ -64,18 +64,31 @@ def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens
         )[0]
 
         # 步骤2：计算最近的k个token的近似熵
-        current_token_embedding = inputs_embeds[0, current_token_position, :].detach()
-        grad = grads[0, current_token_position, :].detach()
+        current_token_embedding = model.lm_head.weight[current_token_id].detach().to(device)
+        grad = grads[0, current_token_position, :].detach().to(device)
 
         valid_mask = mask.clone()
         valid_mask[current_token_id] = False
-        valid_token_ids = torch.where(valid_mask)[0]
-        valid_embeddings = all_token_embeddings[valid_token_ids]
+        # 首先获取模型权重所在的设备
+        weight_device = model.lm_head.weight.device
         
-        l2_distances = torch.norm(valid_embeddings - current_token_embedding.unsqueeze(0), p=2, dim=1)
-        nearest_indices = torch.topk(l2_distances, k=min(k, len(valid_token_ids)), largest=False).indices
+        # 确保所有张量在同一设备上
+        current_token_embedding = model.lm_head.weight[current_token_id].detach().to(weight_device)
+        grad = grads[0, current_token_position, :].detach().to(weight_device)
 
+        valid_mask = mask.clone()
+        valid_mask[current_token_id] = False
+        valid_token_ids = torch.where(valid_mask)[0].to(weight_device)
+        valid_embeddings = model.lm_head.weight[valid_token_ids]
+
+        # 标准化操作
+        normalized_current = F.normalize(current_token_embedding.unsqueeze(0), p=2, dim=1)
+        normalized_valid = F.normalize(valid_embeddings, p=2, dim=1)
         
+        # 计算距离
+        normalized_l2_distances = torch.norm(normalized_valid - normalized_current, p=2, dim=1)
+        nearest_indices = torch.topk(normalized_l2_distances, k=min(k, len(valid_token_ids)), largest=False).indices
+
         candidate_token_ids = valid_token_ids[nearest_indices]
 
         delta_embeddings = valid_embeddings[nearest_indices] - current_token_embedding
