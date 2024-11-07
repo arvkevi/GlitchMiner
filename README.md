@@ -1,3 +1,7 @@
+## Update
+
+- 11/7 We add reproduction code of the two baseline method in this paper.
+
 # GlitchMiner: Mining Glitch Tokens in Large Language Models via Gradient-based Discrete Optimization
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue.svg?style=flat-square)](https://www.python.org/)
