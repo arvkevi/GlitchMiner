@@ -1,12 +1,12 @@
-## Update
-
-- 11/7 We add reproduction code of the two baseline method in this paper.
-
 # GlitchMiner: Mining Glitch Tokens in Large Language Models via Gradient-based Discrete Optimization
 
 [![Python](https://img.shields.io/badge/Python-3.x-blue.svg?style=flat-square)](https://www.python.org/)
 [![HuggingFace Transformers](https://img.shields.io/badge/HuggingFace-Transformers-orange?style=flat-square)](https://huggingface.co/transformers/)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?style=flat-square)](https://github.com/wooozihui/GlitchMiner/pulls)
+
+## Update
+
+- 2024/11/7 We add reproduction code of the two baseline method in this paper.
 
 **GlitchMiner** is a robust framework designed to detect glitch tokens—tokens that cause unexpected behaviors in large language models (LLMs). These anomalies can severely impact model outputs, particularly in sensitive applications such as healthcare or finance.
 
