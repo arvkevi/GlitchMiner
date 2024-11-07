@@ -72,7 +72,7 @@ if __name__ == "__main__":
     )
 ```
 
-## Strictly Glitch Token Verification
+### Strictly Glitch Token Verification
 To eliminate false positives, we recommend using the `strictly_glitch_verification` function for cross-validation.
 ```python
     from glitchminer import strictly_glitch_verification
