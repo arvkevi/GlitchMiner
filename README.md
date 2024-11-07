@@ -103,23 +103,6 @@ GlitchMiner has proven effective across various LLM architectures, significantly
 
 ---
 
-## 🧑‍💻 Contributors
-
-- **Zihui Wu**
-- **Haichang Gao**
-- **Ping Wang**
-- **Shudong Zhang**
-- **Zhaoxiang Liu**,
-- **Shiguo Lian**
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
 ## 🌟 Citing
 
 If you use GlitchMiner in your research, please cite:
