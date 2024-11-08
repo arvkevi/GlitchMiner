@@ -52,6 +52,7 @@ pip install git+https://github.com/wooozihui/GlitchMiner.git
 ```python
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from glitchminer import GlitchMiner
+import torch
 
 if __name__ == "__main__":
     model_path = "Qwen/Qwen2.5-7B-Instruct"
