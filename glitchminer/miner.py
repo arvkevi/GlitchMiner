@@ -8,7 +8,7 @@ import time
 import tqdm
 
 def entropy(probs):
-    return -torch.sum(probs * torch.log(probs + 1e-9), dim=-1)
+    return -torch.sum(probs * torch.log(probs + 1e-6), dim=-1)
 
 def miner(num_iterations, model, tokenizer, all_token_embeddings, no_need_tokens, batch_size=16, k=100, start_id=0, chat_template=None, if_print=True, print_language="CN"):
     device = model.device
