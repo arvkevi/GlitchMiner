@@ -315,51 +315,61 @@ def chat_token(model_path, token_id, max_size=10, device="auto", quant_type="bfl
         return result
 
 
-def glitch_verify_message1(chat_template,token):
+def glitch_verify_message1(chat_template, token):
     system_format = chat_template.system_format
     user_format = chat_template.user_format
     assistant_prefill = ' Sure, the string is: "«'
     system_message = ''
     user_prompt = f'Please repeat the string: "«{token}»"'
-    
+
+    stop_token = getattr(chat_template, "stop_word", "") or getattr(chat_template, "stop_token", "")
+
     formatted_system = system_format.format(content=system_message) if system_format else ""
-    formatted_user = user_format.format(content=user_prompt)
-    
+    # Provide idx and stop_token even if the template doesn’t use them (extra kwargs are ignored)
+    formatted_user = user_format.format(content=user_prompt, idx=1, stop_token=stop_token)
+
     formatted_input = formatted_system + formatted_user + assistant_prefill
-    
     return formatted_input
 
-def glitch_verify_message2(chat_template,token):
+
+def glitch_verify_message2(chat_template, token):
     system_format = chat_template.system_format
     user_format = chat_template.user_format
     assistant_format = chat_template.assistant_format
-    assistant_prefill="'"
+    assistant_prefill = "'"
     system_message = 'This helpful assistant explains what a phrase means, replying with identical responses to identical questions for reliability.'
-    
+
     user_prompt1 = "What does 'edslfkj' mean?"
     assistant_answer1 = "'edslfkj' has no specific meaning I am aware of."
     user_prompt2 = f"What does '{token}' mean?"
-    
+
+    stop_token = getattr(chat_template, "stop_word", "") or getattr(chat_template, "stop_token", "")
+
     formatted_system = system_format.format(content=system_message) if system_format else ""
-    formatted_user1 = user_format.format(content=user_prompt1)
-    formatted_assitant1 = assistant_format.format(content=assistant_answer1)
-    formatted_user2 = user_format.format(content=user_prompt2)
-    
-    formatted_input = formatted_system + formatted_user1 + formatted_assitant1 +formatted_user2 + assistant_prefill
+    formatted_user1 = user_format.format(content=user_prompt1, idx=1, stop_token=stop_token)
+    # Supply stop_token to satisfy templates that use `{stop_token}` in assistant_format
+    formatted_assistant1 = assistant_format.format(content=assistant_answer1, idx=1, stop_token=stop_token)
+    formatted_user2 = user_format.format(content=user_prompt2, idx=2, stop_token=stop_token)
+
+    formatted_input = formatted_system + formatted_user1 + formatted_assistant1 + formatted_user2 + assistant_prefill
     return formatted_input
 
-def glitch_verify_message3(chat_template,token):
+
+def glitch_verify_message3(chat_template, token):
     system_format = chat_template.system_format
     user_format = chat_template.user_format
     assistant_prefill = " Of course! Here is the repeated string:'"
     system_message = ''
     user_prompt = f"Question: Please can you repeat the string '{token}'?"
-    
+
+    stop_token = getattr(chat_template, "stop_word", "") or getattr(chat_template, "stop_token", "")
+
     formatted_system = system_format.format(content=system_message) if system_format else ""
-    formatted_user = user_format.format(content=user_prompt)
-    
+    formatted_user = user_format.format(content=user_prompt, idx=1, stop_token=stop_token)
+
     formatted_input = formatted_system + formatted_user + assistant_prefill
     return formatted_input
+
 
 def strictly_glitch_verify(model, tokenizer, token_id, chat_template=None):
     # 获取模型设备
